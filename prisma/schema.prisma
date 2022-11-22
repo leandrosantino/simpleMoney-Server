@@ -1,0 +1,112 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  googleId  String?  @unique
+  avatarUrl String?
+  createdAt DateTime @default(now())
+
+  Account      Account[]
+  Transactions Transaction[]
+  categories   Category[]
+  Cards        Card[]
+  CardExpenses CardExpense[]
+}
+
+model Account {
+  id         String   @id @default(cuid())
+  name       String
+  saldo      Float
+  iconUrl    String
+  userId     String
+  isArchived Boolean?
+
+  Transactions Transaction[]
+  Card         Card[]
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  date        DateTime
+  description String
+  type        String
+  value       Float
+  status      String
+  repeatId    String   @default(uuid())
+  frequency   String
+  ignore      Boolean
+  userId      String
+  accountId   String
+  categoryId  String
+
+  category Category @relation(fields: [categoryId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+  account  Account  @relation(fields: [accountId], references: [id])
+}
+
+model Category {
+  id         String   @id @default(cuid())
+  nome       String
+  type       String
+  iconUrl    String
+  userId     String?
+  isArchived Boolean?
+
+  Transactions Transaction[]
+  CardExpenses CardExpense[]
+
+  user User? @relation(fields: [userId], references: [id])
+}
+
+model Card {
+  id          String   @id @default(cuid())
+  name        String
+  limit       Float
+  dueDate     Int
+  closingDate Int
+  userId      String
+  accountId   String
+  isArchived  Boolean?
+
+  CardExpenses CardExpense[]
+
+  user    User    @relation(fields: [userId], references: [id])
+  account Account @relation(fields: [accountId], references: [id])
+}
+
+model CardExpense {
+  id          String   @id @default(cuid())
+  value       Float
+  description String
+  date        DateTime
+  invoiceDate DateTime
+  repeatId    String   @default(uuid())
+  frequency   String
+  ignore      Boolean
+  categoryId  String
+  userId      String
+  accountId   String
+  cardId      String
+
+  category Category @relation(fields: [categoryId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+  card     Card     @relation(fields: [cardId], references: [id])
+}

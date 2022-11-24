@@ -1,12 +1,12 @@
-import  Axios  from 'axios'
-import {FastifyInstance} from 'fastify'
+import Axios from 'axios'
+import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { prisma } from '../lib/prisma'
 
-export async function authRoutes(fastify: FastifyInstance){
+export async function authRoutes(fastify: FastifyInstance) {
 
-    fastify.post('/user/auth/google', async (request, reply)=>{
-        
+    fastify.post('/user/auth/google', async (request, reply) => {
+
         try {
 
             const createUserBody = z.object({
@@ -15,8 +15,8 @@ export async function authRoutes(fastify: FastifyInstance){
 
             const { access_token } = createUserBody.parse(request.body)
 
-            const userResponse = await Axios.get('https://www.googleapis.com/oauth2/v2/userinfo',{
-                headers:{
+            const userResponse = await Axios.get('https://www.googleapis.com/oauth2/v2/userinfo', {
+                headers: {
                     Authorization: `Bearer ${access_token}`
                 }
             })
@@ -29,7 +29,7 @@ export async function authRoutes(fastify: FastifyInstance){
                 name: z.string(),
                 picture: z.string().url()
             })
-            
+
             const userInfo = userInfoSchema.parse(userData)
 
             let user = await prisma.user.findUnique({
@@ -40,11 +40,11 @@ export async function authRoutes(fastify: FastifyInstance){
 
             if (!user) {
                 user = await prisma.user.create({
-                    data:{
+                    data: {
                         googleId: userInfo.id,
                         name: userInfo.name,
                         email: userInfo.email,
-                        avatarUrl: userInfo.picture,  
+                        avatarUrl: userInfo.picture,
                     }
                 })
             }
@@ -52,7 +52,7 @@ export async function authRoutes(fastify: FastifyInstance){
             const token = fastify.jwt.sign({
                 name: user.name,
                 avatarUrl: user.avatarUrl,
-            },{
+            }, {
                 sub: user.id,
                 expiresIn: '7 days'
             })

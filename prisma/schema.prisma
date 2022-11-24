@@ -103,7 +103,6 @@ model CardExpense {
   ignore      Boolean
   categoryId  String
   userId      String
-  accountId   String
   cardId      String
 
   category Category @relation(fields: [categoryId], references: [id])

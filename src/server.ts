@@ -10,9 +10,9 @@ import { cardRoutes } from "./routes/card";
 
 async function bootstrap() {
 
-    const fastify = Fastify({logger: true,})
+    const fastify = Fastify({ logger: true, })
 
-    await fastify.register(cors, {origin: true,})
+    await fastify.register(cors, { origin: true, })
     await fastify.register(jwt, {
         secret: 'SIMPLEMONEY15479638'
     })
@@ -22,7 +22,7 @@ async function bootstrap() {
     fastify.register(accountRoutes)
     fastify.register(cardRoutes)
 
-    await fastify.listen({port: 9999, host: '0.0.0.0'})
+    await fastify.listen({ port: 9999, host: '0.0.0.0' })
 }
 
 bootstrap()

@@ -1,14 +1,14 @@
-import {FastifyInstance} from 'fastify'
+import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
-import {prisma} from '../lib/prisma'
+import { prisma } from '../lib/prisma'
 
 import { authenticate } from '../plugin/authenticate'
 
-export async function accountRoutes(fastify:FastifyInstance){
+export async function accountRoutes(fastify: FastifyInstance) {
 
     fastify.post('/account/create', {
-        onRequest:[authenticate]
-    }, async (request, reply)=>{
+        onRequest: [authenticate]
+    }, async (request, reply) => {
         try {
 
             const accountInfoSchema = z.object({
@@ -31,25 +31,25 @@ export async function accountRoutes(fastify:FastifyInstance){
             })
 
         } catch (error) {
-            return reply.status(500).send({error})
+            return reply.status(500).send({ error })
         }
     })
 
     fastify.get('/accounts', {
         onRequest: [authenticate]
-    }, async (request, reply)=>{
+    }, async (request, reply) => {
         try {
             const accounts = await prisma.account.findMany({
-                where:{
+                where: {
                     userId: request.user.sub
                 }
             })
 
-            return {accounts}
+            return { accounts }
 
         } catch (error) {
-            
-            return reply.status(500).send({error})
+
+            return reply.status(500).send({ error })
 
         }
     })
